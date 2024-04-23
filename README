@@ -1,0 +1,12 @@
+README
+
+CS321 final project: Linear space-complexity local alignment
+
+Authors: Jake Lyons and Jaime Robinson
+
+This repository implements a local alignment algorithm that uses linear space
+complexity. The algorithm uses BioPython and NumPy packages, which are free
+and publicly available. 
+
+USAGE: python3 <program_name> <input_file>
+
