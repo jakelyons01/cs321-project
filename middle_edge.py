@@ -84,17 +84,18 @@ def middle_edge(seq1, seq2):
 
 
 if __name__ == "__main__":
-    seq1, seq2 = read(sys.argv[1])
+    seq2, seq1 = read(sys.argv[1])
     back, score = middle_edge(seq1, seq2)
     n = len(seq1)
     top_half = int(n/2 if n%2 == 0 else n//2 +1)
-    print("top half:", top_half)
-    print("score:\n", score)
-    print("back:\n", back)
+    #print("top half:", top_half)
+    #print("score:\n", score)
+    #print("back:\n", back)
     
-    longest = np.argmax(score[1])
+    score_trans = np.transpose(score)
+    longest = np.argmax(score_trans[1])
     child = "("+ str(top_half) + ", " + str(longest) +")"
-    back_pointer = back[1][longest-1]
+    back_pointer = back[longest-1][1]
     parent=""
     
     if back_pointer == Back.MAT:
