@@ -43,7 +43,7 @@ def copy_next_col(matrix):
     np.copyto(trans[0], trans[1])
     return np.transpose(trans)
 
-def middle_edge(seq1, seq2):
+def middle_edge(seq2, seq1):
     #finds middle edge in alignment graph
     n = len(seq1)
     m = len(seq2)
@@ -84,9 +84,9 @@ def middle_edge(seq1, seq2):
 
 
 if __name__ == "__main__":
-    seq2, seq1 = read(sys.argv[1])
+    seq1, seq2 = read(sys.argv[1])
     back, score = middle_edge(seq1, seq2)
-    n = len(seq1)
+    n = len(seq2)
     top_half = int(n/2 if n%2 == 0 else n//2 +1)
     #print("top half:", top_half)
     #print("score:\n", score)
@@ -94,18 +94,18 @@ if __name__ == "__main__":
     
     score_trans = np.transpose(score)
     longest = np.argmax(score_trans[1])
-    child = "("+ str(top_half) + ", " + str(longest) +")"
+    child = "("+ str(longest) + ", " + str(top_half) +")"
     back_pointer = back[longest-1][1]
     parent=""
     
     if back_pointer == Back.MAT:
-        parent = "("+ str(top_half -1) + ", " + str(longest -1) +")"
+        parent = "("+ str(longest -1) + ", " + str(top_half -1) +")"
 
     elif back_pointer == Back.VRT:
-        parent = "("+ str(top_half) + ", " + str(longest -1) +")"
+        parent = "("+ str(longest -1) + ", " + str(top_half) +")"
 
     elif back_pointer == Back.HRZ:
-        parent = "("+ str(top_half-1) + ", " + str(longest) +")"
+        parent = "("+ str(longest) + ", " + str(top_half-1) +")"
 
         
     #build output string: (i, j) (k, l) where the first connects to the second
