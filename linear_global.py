@@ -47,10 +47,12 @@ def get_mid_edge(top, bottom, left, right):
 
 def linear_space_align(top, bottom, left, right):
     #recursively finds highest-scoring path in alignment graph in linear space
+    path = []
     if left == right:
-        return #alignment formed by bottom - top vertical edges
+        return [Back.VRT for _ in range(bottom - top)]
+    
     if top == bottom:
-        return #alignment fromed by right - left horizontal edges
+        return [Back.HRZ for _ in range(right - left)]
 
     middle = (len(left) + len(right)) //2
     mid_node, mid_edge = get_mid_edge(a, b, c, d) 
@@ -60,7 +62,7 @@ def linear_space_align(top, bottom, left, right):
     path.append(mid_edge)
     
     if mid_edge == Back.HRZ or mid_edge == Back.MAT:
-        #middle <-- middle + 1
+        middle += 1
 
     if mid_edge == Back.VRT or mid_edge == Back.MAT:
         #mid_node <-- mid_node + 1
