@@ -87,17 +87,44 @@ def linear_space_align(top, bottom, left, right, seq1, seq2):
 
     #RECURSIVE CALL 2: bottom right box
     bot_right = linear_space_align(mid_node[1], bottom, middle, right, seq1, seq2)
-    path.append(bot_right)
+    path += bot_right
     
     return path
 
 
 def backtrack(path, seq1, seq2):
     #backtracks path on seq1, seq2
-    #copy from assignments/p8.py
-    return
+    output = [[],[]]
+    i = len(seq1) -1 #tracks position in seq1
+    j = len(seq2) -1 #tracks position in seq2
+
+    for step in path[::-1]:
+
+        if step == Back.VRT:
+            #output[0] gets letter from seq1, output[1] gets dash
+            output[0] = [seq1[i]] + output[0]
+            output[1] = ["-"] + output[1]
+            i-= 1
+
+        elif step == Back.HRZ:
+            #output[0] gets dash, output[1] gets letter from seq2
+            output[0] = ["-"] + output[0]
+            output[1] = [seq2[j]] + output[1]
+            j-= 1
+
+        elif step == Back.MAT:
+            #both strings get letters
+            output[0] = [seq1[i]] + output[0]
+            output[1] = [seq2[j]] + output[1]
+            i-= 1
+            j-= 1
+
+    return output
 
 if __name__ == "__main__":
     seq1, seq2 = read(sys.argv[1])
     path = linear_space_align(0, len(seq1), 0, len(seq2), seq1, seq2) 
-    print(path)
+    print("path:", path)
+    output = backtrack(path, seq1, seq2)
+    print(''.join(output[0]))
+    print(''.join(output[1]))
