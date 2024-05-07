@@ -35,12 +35,12 @@ def get_mid_edge(top, bottom, left, right, seq1, seq2):
     back, score = middle_edge(seq1[top:bottom], seq2[left:right])
     n = len(seq2)
     top_half = int(n/2 if n%2 == 0 else n//2 +1)
-    print("back:\n", back)
-    print("score:\n", score)
-    print("left:", left)
-    print("right:", right)
-    print("top:", top)
-    print("bottom:", bottom)
+    #print("back:\n", back)
+    #print("score:\n", score)
+    #print("left:", left)
+    #print("right:", right)
+    #print("top:", top)
+    #print("bottom:", bottom)
 
     score_trans = np.transpose(score)
     longest = np.argmax(score_trans[1])
@@ -65,10 +65,10 @@ def get_mid_edge(top, bottom, left, right, seq1, seq2):
 def linear_space_align(top, bottom, left, right, seq1, seq2):
     #recursively finds highest-scoring path in alignment graph in linear space
     path = []
-    if left == right:
+    if left >= right:
         return [Back.VRT for _ in range(bottom - top)]
     
-    if top == bottom:
+    if top >= bottom:
         return [Back.HRZ for _ in range(right - left)]
 
     middle = (left + right) //2
@@ -76,9 +76,7 @@ def linear_space_align(top, bottom, left, right, seq1, seq2):
 
     #RECURSIVE CALL 1: top left box
     path = linear_space_align(top, mid_node[1], left, middle, seq1, seq2)
-    print("path:", path)
     path.append(mid_edge)
-    print("path:", path)
     
     if mid_edge == Back.HRZ or mid_edge == Back.MAT:
         middle += 1
@@ -92,6 +90,12 @@ def linear_space_align(top, bottom, left, right, seq1, seq2):
     path.append(bot_right)
     
     return path
+
+
+def backtrack(path, seq1, seq2):
+    #backtracks path on seq1, seq2
+    #copy from assignments/p8.py
+    return
 
 if __name__ == "__main__":
     seq1, seq2 = read(sys.argv[1])
