@@ -96,17 +96,16 @@ if __name__ == "__main__":
     longest = np.argmax(score_trans[1])
     child = "("+ str(longest) + ", " + str(top_half) +")"
     back_pointer = back[longest-1][1]
-    parent=""
+    parent=()
     
     if back_pointer == Back.MAT:
-        parent = "("+ str(longest -1) + ", " + str(top_half -1) +")"
+        parent = (longest -1, top_half -1) 
 
     elif back_pointer == Back.VRT:
-        parent = "("+ str(longest -1) + ", " + str(top_half) +")"
+        parent = (longest -1, top_half)
 
     elif back_pointer == Back.HRZ:
-        parent = "("+ str(longest) + ", " + str(top_half-1) +")"
+        parent = (longest, top_half-1) 
 
-        
     #build output string: (i, j) (k, l) where the first connects to the second
     print(parent, child)
