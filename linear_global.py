@@ -32,35 +32,35 @@ def get_mid_edge(top, bottom, left, right, seq1, seq2):
     #call middle_edge.middle_edge(seq1, seq2)
     #parse output to make it useful
 
-    back, score = middle_edge(seq1[top:bottom], seq2[left:right])
-    n = len(seq2)
-    top_half = int(n/2 if n%2 == 0 else n//2 +1)
-    #print("back:\n", back)
-    #print("score:\n", score)
-    #print("left:", left)
-    #print("right:", right)
-    #print("top:", top)
-    #print("bottom:", bottom)
-
+    if len(seq1) >= len(seq2):
+        back, score = middle_edge(seq1[top:bottom+1], seq2[left:right+1])
+        n = len(seq2)
+    else:
+        rev = True
+        back, score = middle_edge(seq2[left:right+1], seq1[top:bottom+1])
+        n = len(seq1)
+    #top_half = int(n/2 if n%2 == 0 else n//2 +1)
+    top_half = int(n//2 +1)
+    
     score_trans = np.transpose(score)
     longest = np.argmax(score_trans[1])
-    child = [longest, top_half]
-    back_pointer = back[longest-1][1]
-    parent=[]
+    child = (longest, top_half)
+    back_ptr = back[longest-1][1]
+    parent=()
 
-    if back_pointer == Back.MAT:
+    if back_ptr == Back.MAT:
         parent = [longest -1, top_half -1] 
-        back_pointer = Back.MAT
+        back_ptr = Back.MAT
 
-    elif back_pointer == Back.VRT:
+    elif back_ptr == Back.VRT:
         parent = [longest -1, top_half]
-        back_pointer = Back.VRT
+        back_ptr = Back.VRT
 
-    elif back_pointer == Back.HRZ:
+    elif back_ptr == Back.HRZ:
         parent = [longest, top_half-1] 
-        back_pointer = Back.HRZ
+        back_ptr = Back.HRZ
 
-    return parent, back_pointer
+    return parent, back_ptr
 
 def linear_space_align(top, bottom, left, right, seq1, seq2):
     #recursively finds highest-scoring path in alignment graph in linear space

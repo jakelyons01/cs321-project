@@ -105,6 +105,7 @@ if __name__ == "__main__":
     elif back_ptr == Back.HRZ:
         parent = (longest, top_half-1) 
 
+    print(score)
     if rev:
         print(parent[::-1], child[::-1])
     else:
