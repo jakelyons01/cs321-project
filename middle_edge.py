@@ -97,8 +97,6 @@ if __name__ == "__main__":
     
     fs_score = np.transpose(fs_score)
     ts_score = np.transpose(ts_score)
-    print("fs_score:\n", fs_score)
-    print("ts_score:\n", ts_score)
     longest = np.argmax(fs_score[1] + ts_score[0][::-1])
     child = (longest, top_half)
     back_ptr = back[longest-1][1]
