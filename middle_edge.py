@@ -47,21 +47,22 @@ def middle_edge(seq1, seq2):
     score[0, 1] = score[0, 0] + INDEL
 
     #top_half = int(n/2 if n%2 == 0 else n//2 +1)
-    top_half = int(n//2 +1)
+    top_half = int(m//2 +1)
 
+    #iterate window
     for i in range(1, top_half+1): #iterates first half of n
         #copy row1 to row0
-        print("score:\n", score)
-        score = copy_next_col(score)
-        score[0,1] = score[0,0] + INDEL #account for indel
-        back = copy_next_col(back)
+        if i != 1:
+            score = copy_next_col(score)
+            score[0,1] = score[0,0] + INDEL #account for indel
+            back = copy_next_col(back)
 
-        for j in range(1, m+1):
+        for j in range(1, n+1):
             #do scoring and fill in backtrack
             score[j, 1] = max(
                     score[j-1, 1] + INDEL,
                     score[j, 0] + INDEL,
-                    score[j-1, 0] + sub_mat[(seq1[i-1], seq2[j-1])]
+                    score[j-1, 0] + sub_mat[(seq1[j-1], seq2[i-1])]
                     )
 
             if score[j, 1] == score[j-1, 1] + INDEL:
@@ -70,7 +71,7 @@ def middle_edge(seq1, seq2):
             elif score[j, 1] == score[j, 0] + INDEL:
                 back[j-1, 0] = Back.HRZ
 
-            elif score[j, 1] == score[j-1, 0] + sub_mat[(seq1[i-1], seq2[j-1])]:
+            elif score[j, 1] == score[j-1, 0] + sub_mat[(seq1[j-1], seq2[i-1])]:
                 back[j-1, 0] = Back.MAT
 
     return back, score
@@ -82,18 +83,11 @@ if __name__ == "__main__":
     n = len(seq2)
     #top_half = int(n/2 if n%2 == 0 else n//2 +1)
     top_half = int(n//2 +1)
-    print("top half:", top_half)
-    print("score:\n", score)
-    print("back:\n", back)
     
     score_trans = np.transpose(score)
     longest = np.argmax(score_trans[1])
-    print("score slice:\n", score[longest-5:longest+3])
-    print("longest:", longest)
-    print("top_half:", top_half)
     child = (longest, top_half)
     back_ptr = back[longest-1][1]
-    print("back_ptr:", back_ptr)
     parent=()
     
     if back_ptr == Back.MAT:
