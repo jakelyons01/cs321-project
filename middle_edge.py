@@ -25,17 +25,6 @@ def read(filename):
 
     return seq1, seq2
 
-"""
-plan:
-    using sliding window:
-        compute score of immediate child
-        Save backtracking pointers
-        (then copy col2 info into col1 and repeat)
-
-        return the (score? and) the start and end nodes for the edge
-        
-        NOTE: middle node = node in middle column with most letters consumed
-"""
 
 def copy_next_col(matrix):
     #copies col1 into col0 for given nx2 matrix
@@ -43,69 +32,81 @@ def copy_next_col(matrix):
     np.copyto(trans[0], trans[1])
     return np.transpose(trans)
 
-def middle_edge(seq2, seq1):
+def middle_edge(seq1, seq2):
     #finds middle edge in alignment graph
     n = len(seq1)
     m = len(seq2)
-    score = np.zeros((m+1, 2), dtype=np.int_)
-    back = np.zeros((m, 2), dtype=np.int_)
+    score = np.zeros((n+1, 2), dtype=np.int_)
+    back = np.zeros((n, 2), dtype=np.int_)
 
     #initialize left edge of graph
-    for i in range(0, m):
+    for i in range(0, n):
         score[i+1, 0] = score[i, 0] + INDEL
 
-    top_half = int(n/2 if n%2 == 0 else n//2 +1)
+    #initialize top row
+    score[0, 1] = score[0, 0] + INDEL
 
-    for i in range(0, top_half+1):
-        #copy row1 to row0 if not first iteration
-        if i != 0:
+    #top_half = int(n/2 if n%2 == 0 else n//2 +1)
+    top_half = int(m//2 +1)
+
+    #iterate window
+    for i in range(1, top_half+1): #iterates first half of n
+        #copy row1 to row0
+        if i != 1:
             score = copy_next_col(score)
+            score[0,1] = score[0,0] + INDEL #account for indel
             back = copy_next_col(back)
 
-        for j in range(1, m+1):
+        for j in range(1, n+1):
             #do scoring and fill in backtrack
-
             score[j, 1] = max(
-                    score[j, 0  ] + INDEL,
                     score[j-1, 1] + INDEL,
-                    score[j-1, 0] + sub_mat[(seq1[i-1], seq2[j-1])]
+                    score[j, 0] + INDEL,
+                    score[j-1, 0] + sub_mat[(seq1[j-1], seq2[i-1])]
                     )
-            
-            if score[j, 1] == score[j, 0] + INDEL:
-                back[j-1, 1] = Back.VRT
 
-            elif score[j, 1] == score[j-1, 1] + INDEL:
-                back[j-1, 1] = Back.HRZ
+            if score[j, 1] == score[j-1, 1] + INDEL:
+                back[j-1, 0] = Back.VRT
 
-            elif score[j, 1] == score[j-1, 0] + sub_mat[(seq1[i-1], seq2[j-1])]:
-                back[j-1, 1] = Back.MAT
+            elif score[j, 1] == score[j, 0] + INDEL:
+                back[j-1, 0] = Back.HRZ
+
+            elif score[j, 1] == score[j-1, 0] + sub_mat[(seq1[j-1], seq2[i-1])]:
+                back[j-1, 0] = Back.MAT
 
     return back, score
 
 
 if __name__ == "__main__":
     seq1, seq2 = read(sys.argv[1])
-    back, score = middle_edge(seq1, seq2)
-    n = len(seq2)
-    top_half = int(n/2 if n%2 == 0 else n//2 +1)
-    #print("top half:", top_half)
-    #print("score:\n", score)
-    #print("back:\n", back)
+    rev = False
+    if len(seq1) >= len(seq2):
+        back, score = middle_edge(seq1, seq2)
+        n = len(seq2)
+    else:
+        rev = True
+        back, score = middle_edge(seq2, seq1)
+        n = len(seq1)
+    #top_half = int(n/2 if n%2 == 0 else n//2 +1)
+    top_half = int(n//2 +1)
     
     score_trans = np.transpose(score)
     longest = np.argmax(score_trans[1])
-    child = "("+ str(longest) + ", " + str(top_half) +")"
-    back_pointer = back[longest-1][1]
+    child = (longest, top_half)
+    back_ptr = back[longest-1][1]
     parent=()
     
-    if back_pointer == Back.MAT:
+    if back_ptr == Back.MAT:
         parent = (longest -1, top_half -1) 
 
-    elif back_pointer == Back.VRT:
+    elif back_ptr == Back.VRT:
         parent = (longest -1, top_half)
 
-    elif back_pointer == Back.HRZ:
+    elif back_ptr == Back.HRZ:
         parent = (longest, top_half-1) 
 
-    #build output string: (i, j) (k, l) where the first connects to the second
-    print(parent, child)
+    print(score)
+    if rev:
+        print(parent[::-1], child[::-1])
+    else:
+        print(parent, child)
