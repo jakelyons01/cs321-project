@@ -79,20 +79,9 @@ def middle_edge(seq1, seq2):
 
 if __name__ == "__main__":
     seq1, seq2 = read(sys.argv[1])
-    rev = False
     n = len(seq2)
-    """
-    if len(seq1) >= len(seq2):
-        back, score = middle_edge(seq1, seq2)
-        n = len(seq2)
-    else:
-        rev = True
-        back, score = middle_edge(seq2, seq1)
-        n = len(seq1)
-    """
     _, fs_score = middle_edge(seq1, seq2)
     back, ts_score = middle_edge(seq1[::-1], seq2[::-1])
-    #top_half = int(n/2 if n%2 == 0 else n//2 +1)
     top_half = int(n//2 +1)
     
     fs_score = np.transpose(fs_score)
@@ -110,10 +99,5 @@ if __name__ == "__main__":
 
     elif back_ptr == Back.HRZ:
         parent = (longest, top_half-1) 
-    """
-    if rev:
-        print(parent[::-1], child[::-1])
-    else:
-        print(parent, child)
-    """
+
     print(parent, child)
