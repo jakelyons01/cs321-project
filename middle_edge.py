@@ -61,7 +61,7 @@ def middle_edge(seq1, seq2):
             #do scoring and fill in backtrack
             score[j, 1] = max(
                     score[j-1, 1] + INDEL,
-                    score[j, 0] + INDEL,
+                    score[j, 0  ] + INDEL,
                     score[j-1, 0] + sub_mat[(seq1[j-1], seq2[i-1])]
                     )
 
@@ -80,6 +80,8 @@ def middle_edge(seq1, seq2):
 if __name__ == "__main__":
     seq1, seq2 = read(sys.argv[1])
     rev = False
+    n = len(seq2)
+    """
     if len(seq1) >= len(seq2):
         back, score = middle_edge(seq1, seq2)
         n = len(seq2)
@@ -87,11 +89,15 @@ if __name__ == "__main__":
         rev = True
         back, score = middle_edge(seq2, seq1)
         n = len(seq1)
+    """
+    _, fs_score = middle_edge(seq1, seq2)
+    back, ts_score = middle_edge(seq1[::-1], seq2[::-1])
     #top_half = int(n/2 if n%2 == 0 else n//2 +1)
     top_half = int(n//2 +1)
     
-    score_trans = np.transpose(score)
-    longest = np.argmax(score_trans[1])
+    fs_score = np.transpose(fs_score)
+    ts_score = np.transpose(ts_score)
+    longest = np.argmax(fs_score[1] + ts_score[0][::-1])
     child = (longest, top_half)
     back_ptr = back[longest-1][1]
     parent=()
@@ -104,9 +110,10 @@ if __name__ == "__main__":
 
     elif back_ptr == Back.HRZ:
         parent = (longest, top_half-1) 
-
-    print(score)
+    """
     if rev:
         print(parent[::-1], child[::-1])
     else:
         print(parent, child)
+    """
+    print(parent, child)
