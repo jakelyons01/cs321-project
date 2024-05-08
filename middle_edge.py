@@ -36,31 +36,42 @@ def middle_edge(seq1, seq2):
     #finds middle edge in alignment graph
     n = len(seq1)
     m = len(seq2)
-    score = np.zeros((m+1, 2), dtype=np.int_)
-    back = np.zeros((m, 2), dtype=np.int_)
+    score = np.zeros((n+1, 2), dtype=np.int_)
+    back = np.zeros((n, 2), dtype=np.int_)
 
     #initialize left edge of graph
-    for i in range(0, m):
+    for i in range(0, n):
         score[i+1, 0] = score[i, 0] + INDEL
+
+    #initialize top row
+    score[0, 1] = score[0, 0] + INDEL
 
     #top_half = int(n/2 if n%2 == 0 else n//2 +1)
     top_half = int(n//2 +1)
 
-    for i in range(0, top_half+1):
-        #copy row1 to row0 if not first iteration
-        if i != 0:
-            score = copy_next_col(score)
-            back = copy_next_col(back)
+    for i in range(1, top_half+1): #iterates first half of n
+        #copy row1 to row0
+        print("score:\n", score)
+        score = copy_next_col(score)
+        score[0,1] = score[0,0] + INDEL #account for indel
+        back = copy_next_col(back)
 
         for j in range(1, m+1):
             #do scoring and fill in backtrack
-            scores = [
-                    score[j-1, 0] + sub_mat[(seq1[i-1], seq2[j-1])],
-                    score[j, 0  ] + INDEL,
-                    score[j-1, 1] + INDEL
-                    ]
-            score[j, 1] = max(scores)
-            back[j-1, 1] = scores.index(score[j, 1])
+            score[j, 1] = max(
+                    score[j-1, 1] + INDEL,
+                    score[j, 0] + INDEL,
+                    score[j-1, 0] + sub_mat[(seq1[i-1], seq2[j-1])]
+                    )
+
+            if score[j, 1] == score[j-1, 1] + INDEL:
+                back[j-1, 0] = Back.VRT
+
+            elif score[j, 1] == score[j, 0] + INDEL:
+                back[j-1, 0] = Back.HRZ
+
+            elif score[j, 1] == score[j-1, 0] + sub_mat[(seq1[i-1], seq2[j-1])]:
+                back[j-1, 0] = Back.MAT
 
     return back, score
 
@@ -77,6 +88,7 @@ if __name__ == "__main__":
     
     score_trans = np.transpose(score)
     longest = np.argmax(score_trans[1])
+    print("score slice:\n", score[longest-5:longest+3])
     print("longest:", longest)
     print("top_half:", top_half)
     child = (longest, top_half)
