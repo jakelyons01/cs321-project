@@ -25,17 +25,6 @@ def read(filename):
 
     return seq1, seq2
 
-"""
-plan:
-    using sliding window:
-        compute score of immediate child
-        Save backtracking pointers
-        (then copy col2 info into col1 and repeat)
-
-        return the (score? and) the start and end nodes for the edge
-        
-        NOTE: middle node = node in middle column with most letters consumed
-"""
 
 def copy_next_col(matrix):
     #copies col1 into col0 for given nx2 matrix
@@ -43,7 +32,7 @@ def copy_next_col(matrix):
     np.copyto(trans[0], trans[1])
     return np.transpose(trans)
 
-def middle_edge(seq2, seq1):
+def middle_edge(seq1, seq2):
     #finds middle edge in alignment graph
     n = len(seq1)
     m = len(seq2)
@@ -54,7 +43,8 @@ def middle_edge(seq2, seq1):
     for i in range(0, m):
         score[i+1, 0] = score[i, 0] + INDEL
 
-    top_half = int(n/2 if n%2 == 0 else n//2 +1)
+    #top_half = int(n/2 if n%2 == 0 else n//2 +1)
+    top_half = int(n//2 +1)
 
     for i in range(0, top_half+1):
         #copy row1 to row0 if not first iteration
@@ -64,21 +54,13 @@ def middle_edge(seq2, seq1):
 
         for j in range(1, m+1):
             #do scoring and fill in backtrack
-
-            score[j, 1] = max(
+            scores = [
+                    score[j-1, 0] + sub_mat[(seq1[i-1], seq2[j-1])],
                     score[j, 0  ] + INDEL,
-                    score[j-1, 1] + INDEL,
-                    score[j-1, 0] + sub_mat[(seq1[i-1], seq2[j-1])]
-                    )
-            
-            if score[j, 1] == score[j, 0] + INDEL:
-                back[j-1, 1] = Back.VRT
-
-            elif score[j, 1] == score[j-1, 1] + INDEL:
-                back[j-1, 1] = Back.HRZ
-
-            elif score[j, 1] == score[j-1, 0] + sub_mat[(seq1[i-1], seq2[j-1])]:
-                back[j-1, 1] = Back.MAT
+                    score[j-1, 1] + INDEL
+                    ]
+            score[j, 1] = max(scores)
+            back[j-1, 1] = scores.index(score[j, 1])
 
     return back, score
 
@@ -87,25 +69,28 @@ if __name__ == "__main__":
     seq1, seq2 = read(sys.argv[1])
     back, score = middle_edge(seq1, seq2)
     n = len(seq2)
-    top_half = int(n/2 if n%2 == 0 else n//2 +1)
-    #print("top half:", top_half)
-    #print("score:\n", score)
-    #print("back:\n", back)
+    #top_half = int(n/2 if n%2 == 0 else n//2 +1)
+    top_half = int(n//2 +1)
+    print("top half:", top_half)
+    print("score:\n", score)
+    print("back:\n", back)
     
     score_trans = np.transpose(score)
     longest = np.argmax(score_trans[1])
-    child = "("+ str(longest) + ", " + str(top_half) +")"
-    back_pointer = back[longest-1][1]
+    print("longest:", longest)
+    print("top_half:", top_half)
+    child = (longest, top_half)
+    back_ptr = back[longest-1][1]
+    print("back_ptr:", back_ptr)
     parent=()
     
-    if back_pointer == Back.MAT:
+    if back_ptr == Back.MAT:
         parent = (longest -1, top_half -1) 
 
-    elif back_pointer == Back.VRT:
+    elif back_ptr == Back.VRT:
         parent = (longest -1, top_half)
 
-    elif back_pointer == Back.HRZ:
+    elif back_ptr == Back.HRZ:
         parent = (longest, top_half-1) 
 
-    #build output string: (i, j) (k, l) where the first connects to the second
     print(parent, child)

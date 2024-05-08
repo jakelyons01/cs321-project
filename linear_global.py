@@ -73,6 +73,8 @@ def linear_space_align(top, bottom, left, right, seq1, seq2):
 
     middle = (left + right) //2
     mid_node, mid_edge = get_mid_edge(top, bottom, left, right, seq1, seq2) 
+    print("mid_node:",mid_node)
+    print("middle:", middle)
 
     #RECURSIVE CALL 1: top left box
     path = linear_space_align(top, mid_node[1], left, middle, seq1, seq2)
