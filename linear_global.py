@@ -27,40 +27,32 @@ def read(filename):
 
     return seq1, seq2
 
-def get_mid_edge(top, bottom, left, right, seq1, seq2):
+def get_mid_edge(seq1, seq2):
     #finds middle edge and middle node given information
     #call middle_edge.middle_edge(seq1, seq2)
     #parse output to make it useful
-
-    if len(seq1) >= len(seq2):
-        back, score = middle_edge(seq1[top:bottom+1], seq2[left:right+1])
-        n = len(seq2)
-    else:
-        rev = True
-        back, score = middle_edge(seq2[left:right+1], seq1[top:bottom+1])
-        n = len(seq1)
-    #top_half = int(n/2 if n%2 == 0 else n//2 +1)
-    top_half = int(n//2 +1)
+    m = len(seq2)
+    top_half = m // 2
     
-    score_trans = np.transpose(score)
-    longest = np.argmax(score_trans[1])
-    child = (longest, top_half)
-    back_ptr = back[longest-1][1]
-    parent=()
-
+    _, fs_score = middle_edge(seq1, seq2[:top_half])
+    back, ts_score = middle_edge(seq1[::-1], seq2[top_half:][::-1])
+    
+    # ts_score will be reversed
+    longest = np.argmax(fs_score + ts_score[::-1])
+    start = (longest, top_half)
+    
+    back_ptr = back[len(back)-longest-1]  # back will be reversed
     if back_ptr == Back.MAT:
-        parent = [longest -1, top_half -1] 
+        end = (longest+1, top_half+1) 
         back_ptr = Back.MAT
-
     elif back_ptr == Back.VRT:
-        parent = [longest -1, top_half]
+        end = (longest+1, top_half)
         back_ptr = Back.VRT
-
     elif back_ptr == Back.HRZ:
-        parent = [longest, top_half-1] 
+        end = (longest, top_half+1) 
         back_ptr = Back.HRZ
 
-    return parent, back_ptr
+    return start, back_ptr
 
 def linear_space_align(top, bottom, left, right, seq1, seq2):
     #recursively finds highest-scoring path in alignment graph in linear space
@@ -77,13 +69,14 @@ def linear_space_align(top, bottom, left, right, seq1, seq2):
         return [Back.HRZ for _ in range(right - left)]
 
     middle = (left + right) //2
-    mid_node, mid_edge = get_mid_edge(top, bottom, left, right, seq1, seq2) 
+    mid_node, mid_edge = get_mid_edge(seq1[top:bottom], seq2[left:right]) 
+    mid_node_index = mid_node[1]
     print("mid_node:",mid_node)
     print("middle:", middle)
     print("=======")
 
     #RECURSIVE CALL 1: top left box
-    path = linear_space_align(top, mid_node[1], left, middle, seq1, seq2)
+    path = linear_space_align(top, mid_node_index, left, middle, seq1, seq2)
     path.append(mid_edge)
     
     if mid_edge == Back.HRZ or mid_edge == Back.MAT:
@@ -91,10 +84,10 @@ def linear_space_align(top, bottom, left, right, seq1, seq2):
 
     if mid_edge == Back.VRT or mid_edge == Back.MAT:
         #mid_node <-- mid_node + 1
-        mid_node[1] += 1
+        mid_node_index += 1
 
     #RECURSIVE CALL 2: bottom right box
-    bot_right = linear_space_align(mid_node[1], bottom, middle, right, seq1, seq2)
+    bot_right = linear_space_align(mid_node_index, bottom, middle, right, seq1, seq2)
     path += bot_right
 
     return path
