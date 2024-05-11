@@ -8,6 +8,7 @@ from middle_edge import middle_edge
 import sys
 import numpy as np
 from enum import IntEnum
+import cython
 
 blosum = '''
 A    R    N    D    C    Q    E    G    H    I    L    K    M    F    P    S    T    W    Y    V    B    Z    X    *
@@ -44,8 +45,14 @@ class Back(IntEnum):
     VRT = 1
     HRZ = 2
 
-def make_dict(matrix):
+def make_dict(matrix: cython.p_char):
     #makes dictionary from matrix
+    matrix: cython.p_char
+    lines: list=[]
+    keys: list=[]
+    fields: list=[]
+    key: cython.char
+
     matrix = matrix.strip()
     lines = [line.strip() for line in matrix.split('\n')]
     keys = lines.pop(0).split()
@@ -69,7 +76,7 @@ def read(filename):
 
     return seq1, seq2
 
-def get_mid_edge(seq1, seq2, sub_mat):
+def get_mid_edge(seq1: list=[], seq2: list=[], sub_mat: dict={}):
     #finds middle edge and middle node given information
     #call middle_edge.middle_edge(seq1, seq2)
     #parse output to make it useful
@@ -98,10 +105,6 @@ def get_mid_edge(seq1, seq2, sub_mat):
 
 def linear_space_align(top, bottom, left, right, seq1, seq2, sub_mat):
     #recursively finds highest-scoring path in alignment graph in linear space
-    #print("top:", top)
-    #print("bottom:", bottom)
-    #print("left:", left)
-    #print("right:", right)
     path = [] 
     if left == right:
         return [Back.VRT for _ in range(bottom - top)]
@@ -112,10 +115,6 @@ def linear_space_align(top, bottom, left, right, seq1, seq2, sub_mat):
     middle = (left + right) //2
     mid_node, mid_edge = get_mid_edge(seq1[top:bottom], seq2[left:right], sub_mat) 
     mid_node_index = mid_node[0] + top
-    #print("mid_node_index:",mid_node_index)
-    #print("middle:", middle)
-    #print("mid_edge:", mid_edge)
-    #print("=======")
 
     #RECURSIVE CALL 1: top left box
     path = linear_space_align(top, mid_node_index, left, middle, seq1, seq2, sub_mat)
@@ -128,11 +127,6 @@ def linear_space_align(top, bottom, left, right, seq1, seq2, sub_mat):
         #mid_node <-- mid_node + 1
         mid_node_index += 1
 
-    #print("after")
-    #print("mid_node_index:",mid_node_index)
-    #print("middle:", middle)
-    #print("mid_edge:", mid_edge)
-    #print("=======")
     #RECURSIVE CALL 2: bottom right box
     bot_right = linear_space_align(mid_node_index, bottom, middle, right, seq1, seq2, sub_mat)
     path += bot_right
