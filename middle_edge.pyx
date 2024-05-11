@@ -6,8 +6,8 @@ Jake Lyons and Jaime Robinson
 
 import sys
 import numpy as np
-from Bio.Align import substitution_matrices
-sub_mat = substitution_matrices.load("BLOSUM62")
+#from Bio.Align import substitution_matrices
+#sub_mat = substitution_matrices.load("BLOSUM62")
 from enum import IntEnum
 import cython
 
@@ -27,7 +27,7 @@ def read(filename):
     return seq1, seq2
 
 
-def middle_edge(seq1: list=[], seq2: list=[]): 
+def middle_edge(seq1: list=[], seq2: list=[], sub_mat: dict={}): 
     #finds middle edge in alignment graph
     n: cython.int
     m: cython.int
@@ -61,7 +61,7 @@ def middle_edge(seq1: list=[], seq2: list=[]):
             # order matches the indices in the backtrack ENUM so
             # we can set pointers from argmax
             scores = (
-                score[i-1, col-1] + sub_mat[(seq1[i-1], seq2[j-1])],
+                score[i-1, col-1] + sub_mat[seq1[i-1]][seq2[j-1]],
                 score[i-1, col] + INDEL,
                 score[i, col-1] + INDEL,
             )
