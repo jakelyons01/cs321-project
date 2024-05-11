@@ -9,6 +9,7 @@ import numpy as np
 from Bio.Align import substitution_matrices
 sub_mat = substitution_matrices.load("BLOSUM62")
 from enum import IntEnum
+import cython
 
 INDEL = -5
 
@@ -26,8 +27,16 @@ def read(filename):
     return seq1, seq2
 
 
-def middle_edge(seq1, seq2):
+def middle_edge(seq1: list=[], seq2: list=[]): 
     #finds middle edge in alignment graph
+    n: cython.int
+    m: cython.int
+    i: cython.int
+    j: cython.int
+    score: numpy.ndarray
+    back: numpy.ndarray
+    col: cython.int
+
     n = len(seq1)
     m = len(seq2)
     score = np.zeros((n+1, 2), dtype=np.int_)
