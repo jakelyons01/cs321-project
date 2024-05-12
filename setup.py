@@ -4,7 +4,7 @@ from Cython.Build import cythonize
 import numpy
 
 ext_modules = [
-  Extension("linear_global", language="c", sources=["linear_global.pyx"], extra_compile_args=[
+  Extension("middle_edge", language="c", sources=["middle_edge.pyx"], extra_compile_args=[
     "-DNPY_NO_DEPRECATED_API NPY_1_7_API_VERSION",
     "-Wno-unreachable-code-fallthrough", 
     "-Wno-unreachable-code"
