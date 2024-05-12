@@ -8,6 +8,7 @@ from middle_edge import middle_edge
 import sys
 import numpy as np
 from enum import IntEnum
+import cython
 
 blosum = '''
 A    R    N    D    C    Q    E    G    H    I    L    K    M    F    P    S    T    W    Y    V    B    Z    X    *
@@ -46,6 +47,13 @@ class Back(IntEnum):
 
 def make_dict(matrix: str):
     #makes dictionary from matrix
+    matrix: cython.p_char
+    lines: list=[]
+    keys: list=[]
+    fields: list=[]
+    key: str
+    matrix_dict: dict={}
+    strip_matrix: str
 
     matrix = matrix.strip()
     strip_matrix = matrix.strip()
@@ -75,6 +83,15 @@ def get_mid_edge(seq1: list=[], seq2: list=[], sub_mat: dict={}):
     #finds middle edge and middle node given information
     #call middle_edge.middle_edge(seq1, seq2)
     #parse output to make it useful
+    m: cython.int
+    top_half: cython.int
+    back: numpy.ndarray
+    fs_score: numpy.ndarray
+    ts_score: numpy.ndarray
+    longest: cython.int
+    start: tuple=()
+    back_ptr: cython.int
+    end: tuple()
 
     m = len(seq2)
     top_half = m // 2
@@ -99,9 +116,15 @@ def get_mid_edge(seq1: list=[], seq2: list=[], sub_mat: dict={}):
 
     return start, back_ptr
 
-def linear_space_align(top, bottom, left, right, seq1, seq2, sub_mat):
+def linear_space_align(top: cython.int, bottom: cython.int, left: cython.int, right: cython.int, seq1: list=[], seq2: list=[], sub_mat: dict={}):
     #recursively finds highest-scoring path in alignment graph in linear space
 
+    path: list=[]
+    middle: cython.int
+    mid_node: tuple=()
+    mid_edge: cython.int
+    mid_node_index: cython.int
+    bot_right: list=[]
 
     path = [] 
     if left == right:
@@ -134,6 +157,11 @@ def linear_space_align(top, bottom, left, right, seq1, seq2, sub_mat):
 
 def get_path(path: list=[], seq1: list=[], seq2: list=[]):
     #get_paths path on seq1, seq2
+
+    output: list=[]
+    i: cython.int
+    j: cython.int
+    step: cython.int
 
     output = [[],[]]
     i = 0 #tracks position in seq1
