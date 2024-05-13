@@ -76,9 +76,9 @@ def read_fasta(filename):
     #reads fasta file into array
     with open(filename, "r") as file:
         file.readline() #discards fasta info
-        seq=''
+        seq=[]
         for line in file: 
-            seq += file.readline().strip()
+            seq += list(file.readline().strip())
     return seq
 
 def get_taxi_edges(seq1, seq2, sub_mat):
