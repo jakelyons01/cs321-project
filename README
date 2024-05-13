@@ -11,4 +11,6 @@ and publicly available.
 The alignment algorithms use the PAM250 alignment matrix. Python code was
 compiled to C using Cython package. 
 
-USAGE: python3 linear_local.py <input_file>
+Input files should be in fasta format. Alignment is printed to stdout.
+
+USAGE: python3 linear_local.py <input_file1> <input_file2>
