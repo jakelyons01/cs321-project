@@ -72,6 +72,15 @@ class Back(IntEnum):
     VRT = 1
     HRZ = 2
 
+def read_fasta(filename):
+    #reads fasta file into array
+    with open(filename, "r") as file:
+        file.readline() #discards fasta info
+        seq=''
+        for line in file: 
+            seq += file.readline().strip()
+    return seq
+
 def get_taxi_edges(seq1, seq2, sub_mat):
     #finds start and end of longest path in linear space
     
@@ -189,7 +198,8 @@ def get_path(path: list=[], seq1: list=[], seq2: list=[], start: list=[]):
     return output
 
 if __name__ == "__main__":
-    seq1, seq2 = linear_global.read(sys.argv[1])
+    seq1 = read_fasta(sys.argv[1])
+    seq2 = read_fasta(sys.argv[2])
     sub_mat = make_dict(pam)
     start, end, score = get_taxi_edges(seq1, seq2, sub_mat)
     path = linear_global.linear_space_align(start[0], end[0], start[1], end[1], seq1, seq2, sub_mat)
